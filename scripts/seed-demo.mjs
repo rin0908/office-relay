@@ -9,6 +9,7 @@
  *   node scripts/seed-demo.mjs                       # uses .env.development.local (local stack)
  *   node scripts/seed-demo.mjs --env .env.local      # hosted project
  *   node scripts/seed-demo.mjs --photos /path/to/dir # demo photos (default: ./demo-photos)
+ *   node scripts/seed-demo.mjs --email-domain example.com
  */
 import { readFile, readdir } from 'node:fs/promises'
 import { basename, join } from 'node:path'
@@ -33,8 +34,9 @@ if (!SUPABASE_URL || !SUPABASE_KEY) {
 
 const PHOTO_DIR = arg('photos', 'demo-photos')
 const PASSWORD = process.env.DEMO_PASSWORD ?? 'OfficeRelay!2026'
-const DONOR_EMAIL = process.env.DEMO_DONOR_EMAIL ?? 'donor@office-relay.demo'
-const STARTUP_EMAIL = process.env.DEMO_STARTUP_EMAIL ?? 'startup@office-relay.demo'
+const EMAIL_DOMAIN = arg('email-domain', 'office-relay.demo')
+const DONOR_EMAIL = process.env.DEMO_DONOR_EMAIL ?? `donor@${EMAIL_DOMAIN}`
+const STARTUP_EMAIL = process.env.DEMO_STARTUP_EMAIL ?? `startup@${EMAIL_DOMAIN}`
 
 const AREAS = {
   shibuya: { label: '東京都渋谷区', lat: 35.658, lng: 139.7016 },

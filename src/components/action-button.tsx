@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useTransition } from 'react'
+import { useEffect, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import type { ActionState } from '@/app/actions/auth'
 
@@ -24,6 +24,11 @@ export function ActionButton({
   const router = useRouter()
   const [pending, startTransition] = useTransition()
   const [error, setError] = useState<string | null>(null)
+  const [refreshRequested, requestRefresh] = useState(0)
+
+  useEffect(() => {
+    if (refreshRequested > 0) router.refresh()
+  }, [refreshRequested, router])
 
   function run() {
     if (confirmMessage && !window.confirm(confirmMessage)) return
@@ -31,7 +36,7 @@ export function ActionButton({
     startTransition(async () => {
       const result = await action()
       if (result?.error) setError(result.error)
-      else router.refresh()
+      else requestRefresh((count) => count + 1)
     })
   }
 

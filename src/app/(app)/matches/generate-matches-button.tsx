@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useTransition } from 'react'
+import { useEffect, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { generateMatchesAction, type GenerateMatchesState } from '@/app/actions/matches'
 
@@ -8,13 +8,18 @@ export function GenerateMatchesButton() {
   const router = useRouter()
   const [pending, startTransition] = useTransition()
   const [state, setState] = useState<GenerateMatchesState | null>(null)
+  const [refreshRequested, requestRefresh] = useState(0)
+
+  useEffect(() => {
+    if (refreshRequested > 0) router.refresh()
+  }, [refreshRequested, router])
 
   function run() {
     setState(null)
     startTransition(async () => {
       const result = await generateMatchesAction()
       setState(result)
-      router.refresh()
+      if (!result.error) requestRefresh((count) => count + 1)
     })
   }
 

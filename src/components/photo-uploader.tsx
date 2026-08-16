@@ -7,7 +7,6 @@ import { buildStoragePath, ITEM_IMAGES_BUCKET, MAX_PHOTOS } from '@/lib/media'
 import { compressImage } from '@/lib/photo-compression'
 import { createClient } from '@/lib/supabase/client'
 
-export { MAX_PHOTOS } from '@/lib/media'
 const MAX_BYTES = 10 * 1024 * 1024
 const ACCEPTED = ['image/jpeg', 'image/png', 'image/webp', 'image/heic']
 

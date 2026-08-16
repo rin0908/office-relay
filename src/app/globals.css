@@ -1,0 +1,76 @@
+@import "tailwindcss";
+
+@theme {
+  --color-relay-50: #eef6ff;
+  --color-relay-100: #d9ebff;
+  --color-relay-200: #b6d8ff;
+  --color-relay-500: #1f6feb;
+  --color-relay-600: #1857c4;
+  --color-relay-700: #14459b;
+  --color-relay-900: #0b2a5e;
+  --color-accent-500: #0f9d76;
+  --color-accent-100: #d7f5ec;
+  --color-warn-500: #d97706;
+  --color-warn-100: #fef3c7;
+  --color-danger-500: #dc2626;
+  --color-danger-100: #fee2e2;
+  --font-sans: "Hiragino Kaku Gothic ProN", "Noto Sans JP", "Yu Gothic UI", system-ui,
+    -apple-system, "Segoe UI", sans-serif;
+}
+
+html,
+body {
+  background: #f6f8fb;
+  color: #0f172a;
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+* {
+  border-color: #e3e8ef;
+}
+
+/* Reusable component utilities (Tailwind CSS 4 `@utility`, so they can be
+   composed with `@apply` and overridden by inline utility classes). */
+@utility card {
+  @apply rounded-xl border border-slate-200 bg-white shadow-sm;
+}
+
+@utility btn {
+  @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold
+    transition-colors disabled:cursor-not-allowed disabled:opacity-50;
+}
+
+@utility btn-primary {
+  @apply btn bg-relay-500 text-white hover:bg-relay-600;
+}
+
+@utility btn-secondary {
+  @apply btn border border-slate-300 bg-white text-slate-700 hover:bg-slate-50;
+}
+
+@utility btn-accent {
+  @apply btn bg-accent-500 text-white hover:brightness-95;
+}
+
+@utility btn-danger {
+  @apply btn border border-danger-500 bg-white text-danger-500 hover:bg-danger-100;
+}
+
+@utility label {
+  @apply mb-1 block text-sm font-semibold text-slate-700;
+}
+
+@utility input {
+  @apply w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900
+    outline-none placeholder:text-slate-400 focus:border-relay-500 focus:ring-2
+    focus:ring-relay-100;
+}
+
+@utility hint {
+  @apply mt-1 text-xs text-slate-500;
+}
+
+@utility badge {
+  @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold;
+}

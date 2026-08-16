@@ -4,6 +4,7 @@ import { useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { registerItemMediaAction } from '@/app/actions/items'
 import { buildStoragePath, ITEM_IMAGES_BUCKET } from '@/lib/media'
+import { compressImage } from '@/lib/photo-compression'
 import { createClient } from '@/lib/supabase/client'
 
 export const MAX_PHOTOS = 3
@@ -13,6 +14,8 @@ const ACCEPTED = ['image/jpeg', 'image/png', 'image/webp', 'image/heic']
 interface Selected {
   file: File
   previewUrl: string
+  originalSize: number
+  compressed: boolean
 }
 
 /**
@@ -36,12 +39,13 @@ export function PhotoUploader({
   const inputRef = useRef<HTMLInputElement>(null)
   const [selected, setSelected] = useState<Selected[]>([])
   const [error, setError] = useState<string | null>(null)
+  const [compressing, setCompressing] = useState(false)
   const [uploading, setUploading] = useState(false)
   const [progress, setProgress] = useState<string | null>(null)
 
   const remaining = MAX_PHOTOS - existingCount - selected.length
 
-  function handleSelect(event: React.ChangeEvent<HTMLInputElement>) {
+  async function handleSelect(event: React.ChangeEvent<HTMLInputElement>) {
     setError(null)
     const files = Array.from(event.target.files ?? [])
     if (files.length === 0) return
@@ -60,10 +64,27 @@ export function PhotoUploader({
         setError('1ファイル10MBまでにしてください。')
         continue
       }
-      accepted.push({ file, previewUrl: URL.createObjectURL(file) })
+      accepted.push({ file, previewUrl: '', originalSize: file.size, compressed: false })
     }
-    setSelected((prev) => [...prev, ...accepted])
     if (inputRef.current) inputRef.current.value = ''
+
+    if (accepted.length === 0) return
+    setCompressing(true)
+    setProgress(`${accepted.length}枚の画像を圧縮中…`)
+    const compressed = await Promise.all(
+      accepted.map(async (entry) => {
+        const result = await compressImage(entry.file)
+        return {
+          file: result.file,
+          previewUrl: URL.createObjectURL(result.file),
+          originalSize: result.originalSize,
+          compressed: result.compressed,
+        }
+      }),
+    )
+    setSelected((prev) => [...prev, ...compressed])
+    setCompressing(false)
+    setProgress(null)
   }
 
   function removeSelected(index: number) {
@@ -112,7 +133,7 @@ export function PhotoUploader({
     <div className="space-y-4">
       <div>
         <label className="label" htmlFor="photos">
-          写真（最大{MAX_PHOTOS}枚 / 1枚10MBまで）
+          写真（最大{MAX_PHOTOS}枚 / 1枚10MBまで・自動圧縮）
         </label>
         <input
           ref={inputRef}
@@ -120,12 +141,12 @@ export function PhotoUploader({
           type="file"
           accept={ACCEPTED.join(',')}
           multiple
-          disabled={remaining <= 0 || uploading}
+          disabled={remaining <= 0 || compressing || uploading}
           onChange={handleSelect}
           className="input file:mr-3 file:rounded-md file:border-0 file:bg-relay-100 file:px-3 file:py-1.5 file:text-sm file:font-semibold file:text-relay-700"
         />
         <p className="hint">
-          残り{Math.max(0, remaining)}枚追加できます。アップロード前にプレビューで確認できます。
+          残り{Math.max(0, remaining)}枚追加できます。アップロード前に1600px以内のJPEGへ自動圧縮します。
         </p>
       </div>
 
@@ -139,6 +160,11 @@ export function PhotoUploader({
                 alt={`プレビュー ${index + 1}`}
                 className="aspect-square w-full rounded-lg border border-slate-200 object-cover"
               />
+              <p className="mt-1 text-xs text-slate-500">
+                {entry.compressed
+                  ? `${(entry.originalSize / 1024 / 1024).toFixed(1)}MB → ${(entry.file.size / 1024 / 1024).toFixed(1)}MB に圧縮`
+                  : `${(entry.file.size / 1024 / 1024).toFixed(1)}MB（圧縮なし）`}
+              </p>
               <button
                 type="button"
                 onClick={() => removeSelected(index)}
@@ -163,10 +189,15 @@ export function PhotoUploader({
         <button
           type="button"
           onClick={upload}
-          disabled={selected.length === 0 || uploading}
+          disabled={selected.length === 0 || compressing || uploading}
           className="btn-primary"
         >
-          {uploading ? (
+          {compressing ? (
+            <>
+              <span className="size-3.5 animate-spin rounded-full border-2 border-white/40 border-t-white" />
+              画像を圧縮中…
+            </>
+          ) : uploading ? (
             <>
               <span className="size-3.5 animate-spin rounded-full border-2 border-white/40 border-t-white" />
               アップロード中…

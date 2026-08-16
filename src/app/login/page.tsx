@@ -19,8 +19,8 @@ export default async function LoginPage({
       </div>
       <p className="mt-6 max-w-md text-xs leading-5 text-slate-500">
         デモ用アカウント（シード投入済みの場合）: <br />
-        提供企業 <code className="font-mono">donor@office-relay.demo</code> / スタートアップ{' '}
-        <code className="font-mono">startup@office-relay.demo</code> — パスワードはいずれも{' '}
+        提供企業 <code className="font-mono">donor@officerelay.dev</code> / スタートアップ{' '}
+        <code className="font-mono">startup@officerelay.dev</code> — パスワードはいずれも{' '}
         <code className="font-mono">OfficeRelay!2026</code>
       </p>
     </main>

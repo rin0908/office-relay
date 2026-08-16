@@ -11,6 +11,12 @@ export const MAX_PHOTOS = 3
 const MAX_BYTES = 10 * 1024 * 1024
 const ACCEPTED = ['image/jpeg', 'image/png', 'image/webp', 'image/heic']
 
+function formatFileSize(bytes: number): string {
+  return bytes < 1024 * 1024
+    ? `${(bytes / 1024).toFixed(1)}KB`
+    : `${(bytes / 1024 / 1024).toFixed(1)}MB`
+}
+
 interface Selected {
   file: File
   previewUrl: string
@@ -162,8 +168,8 @@ export function PhotoUploader({
               />
               <p className="mt-1 text-xs text-slate-500">
                 {entry.compressed
-                  ? `${(entry.originalSize / 1024 / 1024).toFixed(1)}MB → ${(entry.file.size / 1024 / 1024).toFixed(1)}MB に圧縮`
-                  : `${(entry.file.size / 1024 / 1024).toFixed(1)}MB（圧縮なし）`}
+                  ? `${formatFileSize(entry.originalSize)} → ${formatFileSize(entry.file.size)} に圧縮`
+                  : `${formatFileSize(entry.file.size)}（圧縮なし）`}
               </p>
               <button
                 type="button"

@@ -1,3 +1,4 @@
+export const MAX_PHOTOS = 3
 export const ITEM_IMAGES_BUCKET = 'item-images'
 
 /**
